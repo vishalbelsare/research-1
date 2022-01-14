@@ -46,336 +46,432 @@ tsset ID N, yearly   // Define dataset as PanelData
 
 * LABEL V-DEM (INSTITUTIONAL) DATA
 * ==============================================================================
+gen     CRISIS = 0
+replace CRISIS = 1 if GDP_C <= -1.5
+
 label variable COUNTRY      "Country"
 label variable POPULISM     "Populism dummy"
 label variable EXTREME      "Ext. Populism dummy"
 label variable VDEM_LEVEL   "V-DEM: Level"
 label variable VDEM_CHANGE  "V-DEM: Change"
 label variable UNEMPLOYMENT "Unemployment"
-label variable COMMODITY    "Commodity price index"
+label variable COMMODITY    "Comm. price index"
+label variable CRISIS       "Crisis"
 
 rename COUNTRY      CTY
 rename POPULISM     POP
 rename EXTREME      EXT
 rename VDEM_LEVEL   VDEM_L
 rename VDEM_CHANGE  VDEM_C
+rename GDP_LEVEL	GDP_L
+rename GDP_CHANGE   GDP_C
 rename UNEMPLOYMENT U
 rename COMMODITY    COMM
 
+gen     CRISIS = 0
+replace CRISIS = 1 if GDP_C <= -1.5
 
+format VDEM_L %9.1f
+
+
+* DESCRIPTIVE PLOTS
+* ==============================================================================
 * Argentina
-twoway xtline   VDEM_L if ID==1, ///
-			    title("Argentina") subtitle("") ///
-			    xlabel(1(1)7, grid) ///
-			    ylabel(0.5(0.10)1.00, grid) ///
-	|| scatteri 0.66 3 ///
-				byopts(note(""))
+twoway line VDEM_L N if ID==1, title("Argentina") 							 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.659 3 0.634 4 0.600 5 0.615 7,								 ///
+			legend(off)
+graph export "ARG_Fig_01.png", as(png) replace
+ 
+ * Brazil
+twoway line VDEM_L N if ID==2, title("Brazil") 		  						 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.749 3 0.777 4 0.782 5 0.583 7,								 ///
+			legend(off)
+graph export "BRA_Fig_01.png", as(png) replace
 
+ * Bolivia
+twoway line VDEM_L N if ID==3, title("Bolivia") 							 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.543 5 0.461 6 0.409 7,										 ///
+			legend(off)
+graph export "BOL_Fig_01.png", as(png) replace
+			
+* Chile	
+twoway line VDEM_L N if ID==4, title("Chile") 								 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.793 3 0.818 4,												 ///
+			legend(off)			
+graph export "CHI_Fig_01.png", as(png) replace
 
-
-POP if id==1,  i(COUNTRY) t(YEAR) saving(Fig_1_01, replace)			 ///
-	   title("Argentina") subtitle("")										 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   xline(2003 2015)														 ///
-	   byopts(note(""))
-
-
-
-
-
-
-* LABEL ECONOMIC (WORLD BANK) DATA
-* ==============================================================================
-label variable G_SIZ     "Gov. size (%GDP)"
-label variable NATRE     "Nat. res. (%GDP)"
-label variable X_TAX     "Avg. tariff on exports"
-label variable UNEMP     "Unemployment rate"
-label variable POPULIST  "Populist country dummy"
-label variable CRISIS_5  "Crisis (5 years)"
-label variable CRISIS_98 "Tequila crisis"
-label variable CRISIS_08 "2008 crisis"
-label variable gGDP_Cap  "% Chg. in GDP per capita"
-label variable P_COMM    "Comm. price index"
-label variable TRADE     "Trade opennes (%GDP)"
-label variable US_RGDP   "% Chg. in US RGDP"
-label variable US_NGDP   "% Chg. in US NGDP"
-
-
-* SET RANGE FROM 0 TO 10 (LESS TO MORE POPULISM)
-* ==============================================================================
-replace VDEM_FOP = (4 - VDEM_FOP) * (10/4)
-replace VDEM_JUD = (1 - VDEM_JUD) * 10
-replace VDEM_CLI = VDEM_CLI * 10
-replace VDEM_COR = VDEM_COR * 10
-replace EFW_PROP = 10 - (EFW_PROP)/10
-
-
-* BUILD GENERAL CRISIS DUMMY
-* ==============================================================================
-gen CRISIS = CRISIS_5 + CRISIS_98 + CRISIS_08
-label variable CRISIS "Any crisis (5 years)"
-replace CRISIS = 1 if CRISIS>=2
-
-
-* BUILD POPULISM "INDEX"
-* ==============================================================================
-gen POP = (VDEM_FOP + VDEM_JUD + VDEM_COR + EFW_PROP) / 4
-label variable POP "Populism index"
-
-
-* PLOT AND SAVE POPULISTM "INDEX" FOR ALL COUNTRIES
-* ==============================================================================
-
-* Argentina
-xtline POP if id==1,  i(COUNTRY) t(YEAR) saving(Fig_1_01, replace)			 ///
-	   title("Argentina") subtitle("")										 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   xline(2003 2015)														 ///
-	   byopts(note(""))
-
-graph export "Fig 1_01.png", as(png) replace
-	
-* Bolivia
-xtline POP if id==2,  i(COUNTRY) t(YEAR) saving(Fig_1_02, replace) 	         ///
-	   title("Bolivia") subtitle("") 										 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   xline(2006)															 ///
-	   byopts(note(""))
-	   
-graph export "Fig 1_02.png", as(png) replace
-
-* Brazil
-xtline POP if id==3,  i(COUNTRY) t(YEAR) saving(Fig_1_03, replace)		     ///
-	   title("Brazil") subtitle("") 										 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   byopts(note(""))
-	   
-graph export "Fig 1_03.png", as(png) replace
-	   
-* Colombia
-xtline POP if id==4,  i(COUNTRY) t(YEAR) saving(Fig_1_04, replace)		     ///
-	   title("Colombia") subtitle("") 										 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   byopts(note(""))
-	   
-graph export "Fig 1_04.png", as(png) replace
-
-* Ecuador
-xtline POP if id==5,  i(COUNTRY) t(YEAR) saving(Fig_1_05, replace)		     ///
-	   title("Ecuador") subtitle("") 										 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   xline(2007 2017)														 ///
-	   byopts(note(""))
-	   
-graph export "Fig 1_05.png", as(png) replace
-
-* Mexico
-xtline POP if id==6,  i(COUNTRY) t(YEAR) saving(Fig_1_06, replace)		     ///
-	   title("Mexico") subtitle("") 									 	 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   byopts(note(""))
-	   
-graph export "Fig 1_06.png", as(png) replace
-	   
+* Ecuador	
+twoway line VDEM_L N if ID==6, title("Ecuador") 							 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.468 2 0.473 3 0.461 4 0.350 5 0.295 6,						 ///
+			legend(off)
+graph export "ECU_Fig_01.png", as(png) replace
+			
+* Mexico			
+twoway line VDEM_L N if ID==7, title("Mexico") 								 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.494 5 0.428 7,												 ///
+			legend(off)
+graph export "MEX_Fig_01.png", as(png) replace
+			
 * Nicaragua
-xtline POP if id==7,  i(COUNTRY) t(YEAR) saving(Fig_1_07, replace) 	         ///
-	   title("Nicaragua") subtitle("") 										 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   xline(2007)															 ///
-	   byopts(note(""))
-	   
-graph export "Fig 1_07.png", as(png) replace
-   
+twoway line VDEM_L N if ID==8, title("Nicaragua") 							 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.093 1 0.359 5 0.206 6 0.135 7,								 ///
+			legend(off)
+graph export "NIC_Fig_01.png", as(png) replace
+
 * Paraguay
-xtline POP if id==8,  i(COUNTRY) t(YEAR) saving(Fig_1_08, replace)		     ///
-	   title("Paraguay") subtitle("") 									 	 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   byopts(note(""))
-	   
-graph export "Fig 1_08.png", as(png) replace
-	  
+twoway line VDEM_L N if ID==9, title("Paraguay") 							 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.451 5,														 ///
+			legend(off)
+graph export "PAR_Fig_01.png", as(png) replace
+			
 * Peru
-xtline POP if id==9,  i(COUNTRY) t(YEAR) saving(Fig_1_09, replace) 	         ///
-	   title("Peru") subtitle("") 										 	 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   byopts(note(""))
-	   
-graph export "Fig 1_09.png", as(png) replace
-	   
-* Venezuela | YES
-xtline POP if id==10, i(COUNTRY) t(YEAR) saving(Fig_1_10, replace)	         ///
-	   title("Venezuela") subtitle("") 										 ///
-	   xlabel(1995(2)2018, grid)											 ///
-	   ylabel(0(2)10, grid)													 ///
-	   xline(1998)															 ///
-	   byopts(note(""))
-				   
-graph export "Fig 1_10.png", as(png) replace
+twoway line VDEM_L N if ID==10, title("Peru") 								 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.465 1 0.429 2 0.168 3 0.624 5 0.638 6,						 ///
+			legend(off)
+graph export "PER_Fig_01.png", as(png) replace
+
+* Uruguay
+twoway line VDEM_L N if ID==11, title("Uruguay")							 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.803 4,														 ///
+			legend(off)
+graph export "URU_Fig_01.png", as(png) replace
+			
+* Venezuela
+twoway line VDEM_L N if ID==12, title("Venezuela")							 ///
+			subtitle("V-DEM: Liberal Democracy and populist elections") 	 ///
+			xlabel(1(1)7  , grid)											 ///
+			ylabel(0(0.1)1, grid)											 ///
+			xtitle("Period")											     ///
+ ||scatteri 0.592 3 0.615 4 0.592 5 0.243 6 0.159 7							 ///
+			legend(off)	
+graph export "VEN_Fig_01.png", as(png) replace
+			
+
+* SUMMARIZE STATISTICS
+* ==============================================================================			
+summarize VDEM_L if POP==0
+summarize VDEM_L if POP==1
+summarize VDEM_L if EXT==1
+
+kdensity VDEM_L if POP==0, ///
+		 addplot(kdensity VDEM_L if POP==1 || kdensity VDEM_L if EXT==1) ///
+		 legend(label(1 "Not populist") label(2 "Populist") label(3 "Extreme")) ///
+		 xtitle("V-Dem: Liberal democracy") note("")
+		 
+graph export "Kernel", as(png) replace
+
+
+* PANEL DATA REGRESSIONS: REGULAR POPULISM
+* ==============================================================================
+
+* Population average | Useufel & No results
+local CONTROLS1 VDEM_L CRISIS
+xtlogit POP `CONTROLS1', pa vce(robust)
+		estimates store PA1, title(Model 1)
+		margins, dydx(`CONTROLS1')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 1")
+		
+local CONTROLS2 VDEM_L CRISIS VDEM_C		
+xtlogit POP `CONTROLS2', pa vce(robust)
+		estimates store PA2, title(Model 2)
+		margins, dydx(`CONTROLS2')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 2")
+		
+local CONTROLS3 VDEM_L CRISIS VDEM_C GDP_L GDP_C COMM
+xtlogit POP `CONTROLS3', pa vce(robust)
+		estimates store PA3, title(Model 3)
+		margins, dydx(`CONTROLS3')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 3")
+		
+local CONTROLS4 VDEM_L CRISIS VDEM_C U COMM
+xtlogit POP `CONTROLS4', pa vce(robust)
+		estimates store PA4, title(Model 4)
+		margins, dydx(`CONTROLS4')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 4")
+		
+		
+local CONTROLS5 VDEM_L CRISIS VDEM_C GDP_L GDP_C U COMM
+xtlogit POP `CONTROLS5', pa vce(robust)
+		estimates store PA5, title(Model 5)
+		margins, dydx(`CONTROLS5')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 5")
+
+			  
+estout PA1 PA2 PA3 PA4 PA5, style(fixed) replace							 ///
+	   collabels(none) mlabels(, titles)                                     ///
+	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
+ 	   prehead("FE models")			                  						 ///
+	   label varlabels(_cons Constant)                                       ///
+	   stats(N, fmt(0) label("Observations"))
+			  
+
+* Random effects | Useful and crisis (1) | All quadrature checks show stable results
+local CONTROLS1 VDEM_L CRISIS
+xtlogit POP `CONTROLS1', re vce(robust)
+		estimates store RE1, title(Model 1)
+		margins, dydx(`CONTROLS1')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 1")
+		
+local CONTROLS2 VDEM_L CRISIS VDEM_C
+xtlogit POP `CONTROLS2', re vce(robust)
+		estimates store RE2, title(Model 2)
+		margins, dydx(`CONTROLS2')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 2")
+		
+local CONTROLS3 VDEM_L CRISIS VDEM_C GDP_L GDP_C COMM
+xtlogit POP `CONTROLS3', re vce(robust)
+		estimates store RE3, title(Model 3)
+		margins, dydx(`CONTROLS3')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 3")
+		
+local CONTROLS4 VDEM_L CRISIS VDEM_C U COMM
+xtlogit POP `CONTROLS4', re vce(robust)
+		estimates store RE4, title(Model 4)
+		margins, dydx(`CONTROLS4')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 4")
+		
+local CONTROLS5 VDEM_L CRISIS VDEM_C GDP_L GDP_C U COMM
+xtlogit POP `CONTROLS5', re vce(robust)
+		estimates store RE5, title(Model 5)
+		margins, dydx(`CONTROLS5')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 5")
+		
 	
- 
- * PLOT COMMODITY PRICE VS POPULIST REGIMES
-* ==============================================================================
-format P_COMM %9.0f
-			   
-// Argentina
-twoway line POP YEAR if id==1,  title("Argentina") subtitle("") 			 ///
-	   xlabel(1995(2)2018, grid) ylabel(0(2)10, grid) xline(2003 2015)		 ///
-	 ||line P_COMM YEAR if id==1, yaxis(2) legend(position(6) rows(1))	
-graph export "Fig 2_1.png", as(png) replace
-	 
-// Bolivia
-twoway line POP YEAR if id==2,  title("Bolivia") subtitle("") 				 ///
-	   xlabel(1995(2)2018, grid) ylabel(0(2)10, grid) xline(2006)			 ///
-	 ||line P_COMM YEAR if id==1, yaxis(2) legend(position(6) rows(1))
-graph export "Fig 2_2.png", as(png) replace
-
-//Ecuador
-twoway line POP YEAR if id==5,  title("Ecuador") subtitle("") 				 ///
-	   xlabel(1995(2)2018, grid) ylabel(0(2)10, grid) xline(2007 2017)		 ///
-	 ||line P_COMM YEAR if id==1, yaxis(2) legend(position(6) rows(1))
-graph export "Fig 2_3.png", as(png) replace	 
-	 
-//Nicaragua
-twoway line POP YEAR if id==7,  title("Nicaragua") subtitle("") 			 ///
-	   xlabel(1995(2)2018, grid) ylabel(0(2)10, grid) xline(2007)			 ///
-	 ||line P_COMM YEAR if id==1, yaxis(2) legend(position(6) rows(1))
-graph export "Fig 2_4.png", as(png) replace	 
-
-//Venezuela
-twoway line POP YEAR if id==10, title("Venezuela") subtitle("") 			 ///
-	   xlabel(1995(2)2018, grid) ylabel(0(2)10, grid) xline(1998)			 ///
-	 ||line P_COMM YEAR if id==1, yaxis(2) legend(position(6) rows(1))
-graph export "Fig 2_5.png", as(png) replace	 
-	 
- 
-* CREATE INTERATION TERMS
-*	1: POPULIST REGIME AND COMMOTIDIES
-*	2: POPULIST REGIME AND UNEMPLOYMENT
-* ==============================================================================
-
-// Interaction terms //
-gen            COMM_POP = P_COMM*POPULIST                            
-label variable COMM_POP "Comm. & Populism"
-
-gen            U_POP = UNEMP*POPULIST
-label variable U_POP "Int. (Unemp. & Pop.)"
-
-
-* FE EFFECT REGRESSION
-* ==============================================================================
-quietly{
-local CONTROLS1 P_COMM COMM_POP CRISIS_5 CRISIS_98 CRISIS_08
-local CONTROLS2 P_COMM COMM_POP CRISIS_5 CRISIS_98 CRISIS_08 US_NGDP US_RGDP UNEMP
-local CONTROLS3 P_COMM COMM_POP CRISIS
-local CONTROLS4 P_COMM COMM_POP CRISIS US_NGDP US_RGDP UNEMP
-  
-xtreg POP `CONTROLS1', fe vce(cluster id)
-	  estimates store FE1, title(Model 1)
-xtreg POP `CONTROLS2', fe vce(cluster id)
-	  estimates store FE2, title(Model 2)
-xtreg POP `CONTROLS3', fe vce(cluster id)
-	  estimates store FE3, title(Model 3)
-xtreg POP `CONTROLS4', fe vce(cluster id)
-	  estimates store FE4, title(Model 4)
-}
-
-// OUTPUT TABLE
-estout FE1 FE2 FE3 FE4 using table2.txt , style(fixed) replace				 ///
+estout RE1 RE2 RE3 RE4 RE5, style(fixed) replace							 ///
 	   collabels(none) mlabels(, titles)                                     ///
 	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
- 	   prehead("FE models")			                  						 /// 
+ 	   prehead("FE models")			                  						 ///
 	   label varlabels(_cons Constant)                                       ///
-	   stats(rmse r2_a r2_w r2_o r2_b N N_g, fmt(4 4 4 4 4 0 0)              ///
-	   label("RMSE" "Adj. R2" "R2 Within" "R2 Overall" "R2 Between"          ///
-	         "Observations" "Groups"))
-			 
- 	 
-* LINEAR REGRESSION WITH PANEL-CORRECTED STANDARD ERRORS
-* ==============================================================================			 
-quietly{
-local CONTROLS1 P_COMM COMM_POP CRISIS_5 CRISIS_98 CRISIS_08
-local CONTROLS2 P_COMM COMM_POP CRISIS_5 CRISIS_98 CRISIS_08 US_NGDP US_RGDP UNEMP
-local CONTROLS3 P_COMM COMM_POP CRISIS
-local CONTROLS4 P_COMM COMM_POP CRISIS US_NGDP US_RGDP UNEMP
- 
-xtpcse POP `CONTROLS1', correlation(psar1) 
-	   estimates store PCSE1, title(Model 1)
-xtpcse POP `CONTROLS2', correlation(psar1) 
-	   estimates store PCSE2, title(Model 2)
-xtpcse POP `CONTROLS3', correlation(psar1) 
-	   estimates store PCSE3, title(Model 3)
-xtpcse POP `CONTROLS4', correlation(psar1) 
-	   estimates store PCSE4, title(Model 4)
-}
+	   stats(aic bic N N_g, fmt(2 2 0 0)           							 ///
+	   label("AIC" "BIC" "Observations" "Groups"))
 
-//OUTPUT TABLE
-estout PCSE1 PCSE2 PCSE3 PCSE4 using table3.txt, style(fixed) replace		 /// 
+	   
+* Fixed effects [be patient] | Useful & No results
+local CONTROLS1 VDEM_L CRISI
+xtlogit POP `CONTROLS1', fe
+		estimates store FE1, title(Model 1)
+		margins, dydx(`CONTROLS1')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 1")
+	
+local CONTROLS2 VDEM_L CRISIS VDEM_C
+xtlogit POP `CONTROLS2', fe
+		estimates store FE2, title(Model 2)
+		margins, dydx(`CONTROLS2')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 2")	
+					 
+local CONTROLS3 VDEM_L CRISIS VDEM_C GDP_L GDP_C COMM
+xtlogit POP `CONTROLS3', fe
+		estimates store FE3, title(Model 3)
+		margins, dydx(`CONTROLS3')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 3")
+	
+local CONTROLS4 VDEM_L CRISIS VDEM_C U COMM
+xtlogit POP `CONTROLS4', fe
+		estimates store FE4, title(Model 4)
+		margins, dydx(`CONTROLS4')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 4")
+					 
+local CONTROLS5 VDEM_L CRISIS VDEM_C GDP_L GDP_C U COMM
+xtlogit POP `CONTROLS5', fe
+		estimates store FE5, title(Model 5)
+		margins, dydx(`CONTROLS5')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 5")
+			  
+estout FE1 FE2 FE3 FE4 FE5, style(fixed) replace			 				 ///
 	   collabels(none) mlabels(, titles)                                     ///
 	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
- 	   prehead("Panel-corrected standard errors (PCSE)")					 /// 
+ 	   prehead("FE models")			                  						 ///
 	   label varlabels(_cons Constant)                                       ///
-	   stats(rmse N N_g, fmt(4 0 0) label("RMSE" "Observations" "Groups"))   
-			 
-			 
-* ARELLANO-BOND ESTIMATION
+	   stats(aic bic N N_g, fmt(2 2 0 0)           							 ///
+	   label("AIC" "BIC" "Observations" "Groups"))
+	   
+	   
+* PANEL DATA REGRESSIONS: EXTREME POPULISM
 * ==============================================================================
-quietly{
-local CONTROLS1 P_COMM COMM_POP CRISIS_5 CRISIS_98 CRISIS_08
-local CONTROLS2 P_COMM COMM_POP CRISIS_5 CRISIS_98 CRISIS_08 US_NGDP US_RGDP UNEMP
-local CONTROLS3 P_COMM COMM_POP CRISIS
-local CONTROLS4 P_COMM COMM_POP CRISIS US_NGDP US_RGDP UNEMP
- 
-xtabond POP `CONTROLS1', lags(1) 
-	    estimates store AB1, title(Model 1)
-xtabond POP `CONTROLS2', lags(1)
-	    estimates store AB2, title(Model 2)
-xtabond POP `CONTROLS3', lags(1)
-	    estimates store AB3, title(Model 3)
-xtabond POP `CONTROLS4', lags(1)
-	    estimates store AB4, title(Model 4)
-}
-
-//OUTPUT TABLE
-estout AB1 AB2 AB3 AB4 using table4.txt, style(fixed) replace				 ///
+* Population average | Useful & V-DEM (2)
+local CONTROLS1 VDEM_L CRISIS
+xtlogit EXT `CONTROLS1', pa vce(robust)
+		estimates store PA1, title(Model 1)
+		margins, dydx(`CONTROLS1')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 1")
+	
+local CONTROLS2 VDEM_L CRISIS VDEM_C
+xtlogit EXT `CONTROLS2', pa vce(robust)
+		estimates store PA2, title(Model 2)
+		margins, dydx(`CONTROLS2')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 2")	
+	
+local CONTROLS3 VDEM_L CRISIS VDEM_C GDP_L GDP_C COMM
+xtlogit EXT `CONTROLS3', pa vce(robust)
+		estimates store PA3, title(Model 3)
+		margins, dydx(`CONTROLS3')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 3")
+	
+local CONTROLS4 VDEM_L CRISIS VDEM_C U COMM
+xtlogit EXT `CONTROLS4', pa vce(robust)
+		estimates store PA4, title(Model 4)
+		margins, dydx(`CONTROLS4')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 4")
+	
+local CONTROLS5 VDEM_L CRISIS VDEM_C GDP_L GDP_C U COMM
+xtlogit EXT `CONTROLS5', pa vce(robust)
+		estimates store PA5, title(Model 5)
+		margins, dydx(`CONTROLS5')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 5")
+			  
+estout PA1 PA2 PA3 PA4 PA5, style(fixed) replace							 ///
 	   collabels(none) mlabels(, titles)                                     ///
 	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
- 	   prehead("Arellano-Bond models") /// 
+ 	   prehead("FE models")			                  						 ///
 	   label varlabels(_cons Constant)                                       ///
-	   stats(N N_g, fmt(4 4 4 0 0) label("Observations" "Groups"))
-			 
+	   stats(N, fmt(0) label("Observations"))
+			  
 
-* ARELLANO-BOVER/BLUNDEL-BOND ESTIMATION
-* ==============================================================================			 
-quietly{
-local CONTROLS1 P_COMM COMM_POP CRISIS_5 CRISIS_98 CRISIS_08
-local CONTROLS2 P_COMM COMM_POP CRISIS_5 CRISIS_98 CRISIS_08 US_NGDP US_RGDP UNEMP
-local CONTROLS3 P_COMM COMM_POP CRISIS
-local CONTROLS4 P_COMM COMM_POP CRISIS US_NGDP US_RGDP UNEMP
- 
-xtdpdsys POP `CONTROLS1', lags(1) 
-	     estimates store ABBB1, title(Model 1)
-xtdpdsys POP `CONTROLS2', lags(1)
-	     estimates store ABBB2, title(Model 2)
-xtdpdsys POP `CONTROLS3', lags(1)
-	     estimates store ABBB3, title(Model 3)
-xtdpdsys POP `CONTROLS4', lags(1)
-	     estimates store ABBB4, title(Model 4)
-}
+* Random effects | Unstable & V-DEM (1) | Unstable results except model 1
+local CONTROLS1 VDEM_L CRISIS
+xtlogit EXT `CONTROLS1', re vce(robust) intpoint(26)
+		estimates store RE1, title(Model 1)
+		margins, dydx(`CONTROLS1')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 1")
+					 
+local CONTROLS2 VDEM_L CRISIS VDEM_C
+xtlogit EXT `CONTROLS2', re vce(robust) intpoint(26)
+		estimates store RE2, title(Model 2)
+		margins, dydx(`CONTROLS2')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 2")
+		
+local CONTROLS3 VDEM_L CRISIS VDEM_C GDP_L GDP_C COMM
+xtlogit EXT `CONTROLS3', re vce(robust) intpoints(26)
+		estimates store RE3, title(Model 3)
+		margins, dydx(`CONTROLS3')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 3")
+		
+local CONTROLS4 VDEM_L CRISIS VDEM_C U COMM
+xtlogit EXT `CONTROLS4', re vce(robust) intpoints(26)
+		estimates store RE4, title(Model 4)
+		margins, dydx(`CONTROLS4')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 4")
 
-//OUTPUT TABLE
-estout ABBB1 ABBB2 ABBB3 ABBB4 using table5.txt, style(fixed) replace		 ///
+local CONTROLS5 VDEM_L CRISIS VDEM_C GDP_L GDP_C U COMM
+xtlogit EXT `CONTROLS5', re vce(robust) intpoints(26)
+		estimates store RE5, title(Model 5)
+		margins, dydx(`CONTROLS5')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 5")
+
+estout RE1 RE2 RE3 RE4 RE5, style(fixed) replace							 ///
 	   collabels(none) mlabels(, titles)                                     ///
 	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
- 	   prehead("Arellano-Bover/Blundell-Bond models")						 ///
+ 	   prehead("FE models")			                  						 ///
 	   label varlabels(_cons Constant)                                       ///
-	   stats(N N_g, fmt(0 0) label("Observations" "Groups"))  
+	   stats(aic bic N N_g, fmt(2 2 0 0)           							 ///
+	   label("AIC" "BIC" "Observations" "Groups"))
+
+
+* Fixed effects [be patient] | Useful
+local CONTROLS1 VDEM_L CRISIS
+xtlogit EXT `CONTROLS1', fe
+		estimates store FE1, title(Model 1)
+		margins, dydx(`CONTROLS1')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 1")
+					 
+local CONTROLS2 VDEM_L CRISIS VDEM_C
+xtlogit EXT `CONTROLS2', fe
+		estimates store FE2, title(Model 2)
+		margins, dydx(`CONTROLS2')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 2")	
+					 
+local CONTROLS3 VDEM_L CRISIS VDEM_C GDP_L GDP_C COMM
+xtlogit EXT `CONTROLS3', fe
+		estimates store FE3, title(Model 3)
+		margins, dydx(`CONTROLS3')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 3")
+					 
+local CONTROLS4 VDEM_L CRISIS VDEM_C U COMM
+xtlogit EXT `CONTROLS4', fe
+		estimates store FE4, title(Model 4)
+		margins, dydx(`CONTROLS4')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 4")
+					 
+local CONTROLS5 VDEM_L CRISIS VDEM_C GDP_L GDP_C U COMM
+xtlogit EXT `CONTROLS5', fe
+		estimates store FE5, title(Model 5)
+		margins, dydx(`CONTROLS5')
+		marginsplot, derivlabels yline(0)									 ///
+					 title("Average marginal effects with 95% CIs, Model 5")
+			  
+estout FE1 FE2 FE3 FE4 FE5, style(fixed) replace			 				 ///
+	   collabels(none) mlabels(, titles)                                     ///
+	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
+ 	   prehead("FE models")			                  						 ///
+	   label varlabels(_cons Constant)                                       ///
+	   stats(aic bic N N_g, fmt(2 2 0 0)             						 ///
+	   label("AIC" "BIC" "Observations" "Groups"))
