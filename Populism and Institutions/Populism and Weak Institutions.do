@@ -68,9 +68,6 @@ rename GDP_CHANGE   GDP_C
 rename UNEMPLOYMENT U
 rename COMMODITY    COMM
 
-gen     CRISIS = 0
-replace CRISIS = 1 if GDP_C <= -1.5
-
 format VDEM_L %9.1f
 
 
@@ -211,7 +208,7 @@ xtlogit POP `CONTROLS1', pa vce(robust)
 		margins, dydx(`CONTROLS1')
 		marginsplot, derivlabels yline(0)									 ///
 					 title("Average marginal effects with 95% CIs, Model 1")
-		
+
 local CONTROLS2 VDEM_L CRISIS VDEM_C		
 xtlogit POP `CONTROLS2', pa vce(robust)
 		estimates store PA2, title(Model 2)
@@ -245,7 +242,7 @@ xtlogit POP `CONTROLS5', pa vce(robust)
 estout PA1 PA2 PA3 PA4 PA5, style(fixed) replace							 ///
 	   collabels(none) mlabels(, titles)                                     ///
 	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
- 	   prehead("FE models")			                  						 ///
+ 	   prehead("PA models")			                  						 ///
 	   label varlabels(_cons Constant)                                       ///
 	   stats(N, fmt(0) label("Observations"))
 			  
@@ -290,7 +287,7 @@ xtlogit POP `CONTROLS5', re vce(robust)
 estout RE1 RE2 RE3 RE4 RE5, style(fixed) replace							 ///
 	   collabels(none) mlabels(, titles)                                     ///
 	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
- 	   prehead("FE models")			                  						 ///
+ 	   prehead("RE models")			                  						 ///
 	   label varlabels(_cons Constant)                                       ///
 	   stats(aic bic N N_g, fmt(2 2 0 0)           							 ///
 	   label("AIC" "BIC" "Observations" "Groups"))
@@ -382,43 +379,48 @@ xtlogit EXT `CONTROLS5', pa vce(robust)
 estout PA1 PA2 PA3 PA4 PA5, style(fixed) replace							 ///
 	   collabels(none) mlabels(, titles)                                     ///
 	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
- 	   prehead("FE models")			                  						 ///
+ 	   prehead("PA models")			                  						 ///
 	   label varlabels(_cons Constant)                                       ///
 	   stats(N, fmt(0) label("Observations"))
 			  
 
 * Random effects | Unstable & V-DEM (1) | Unstable results except model 1
 local CONTROLS1 VDEM_L CRISIS
-xtlogit EXT `CONTROLS1', re vce(robust) intpoint(26)
+xtlogit EXT `CONTROLS1', re vce(robust)
 		estimates store RE1, title(Model 1)
+		quadchk
 		margins, dydx(`CONTROLS1')
 		marginsplot, derivlabels yline(0)									 ///
 					 title("Average marginal effects with 95% CIs, Model 1")
 					 
 local CONTROLS2 VDEM_L CRISIS VDEM_C
-xtlogit EXT `CONTROLS2', re vce(robust) intpoint(26)
+xtlogit EXT `CONTROLS2', re vce(robust)
 		estimates store RE2, title(Model 2)
+		quadchk
 		margins, dydx(`CONTROLS2')
 		marginsplot, derivlabels yline(0)									 ///
 					 title("Average marginal effects with 95% CIs, Model 2")
 		
 local CONTROLS3 VDEM_L CRISIS VDEM_C GDP_L GDP_C COMM
-xtlogit EXT `CONTROLS3', re vce(robust) intpoints(26)
+xtlogit EXT `CONTROLS3', re vce(robust)
 		estimates store RE3, title(Model 3)
+		quadchk
 		margins, dydx(`CONTROLS3')
 		marginsplot, derivlabels yline(0)									 ///
 					 title("Average marginal effects with 95% CIs, Model 3")
 		
 local CONTROLS4 VDEM_L CRISIS VDEM_C U COMM
-xtlogit EXT `CONTROLS4', re vce(robust) intpoints(26)
+xtlogit EXT `CONTROLS4', re vce(robust)
 		estimates store RE4, title(Model 4)
+		quadchk
 		margins, dydx(`CONTROLS4')
 		marginsplot, derivlabels yline(0)									 ///
 					 title("Average marginal effects with 95% CIs, Model 4")
 
 local CONTROLS5 VDEM_L CRISIS VDEM_C GDP_L GDP_C U COMM
-xtlogit EXT `CONTROLS5', re vce(robust) intpoints(26)
+xtlogit EXT `CONTROLS5', re vce(robust)
 		estimates store RE5, title(Model 5)
+		quadchk
 		margins, dydx(`CONTROLS5')
 		marginsplot, derivlabels yline(0)									 ///
 					 title("Average marginal effects with 95% CIs, Model 5")
@@ -426,7 +428,7 @@ xtlogit EXT `CONTROLS5', re vce(robust) intpoints(26)
 estout RE1 RE2 RE3 RE4 RE5, style(fixed) replace							 ///
 	   collabels(none) mlabels(, titles)                                     ///
 	   cells(b(star fmt(3)) se(par fmt(2))) legend                           ///
- 	   prehead("FE models")			                  						 ///
+ 	   prehead("RE models")			                  						 ///
 	   label varlabels(_cons Constant)                                       ///
 	   stats(aic bic N N_g, fmt(2 2 0 0)           							 ///
 	   label("AIC" "BIC" "Observations" "Groups"))
